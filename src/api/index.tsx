@@ -14,7 +14,7 @@ const ApiContext = createContext<ApiContextState>({
 interface ApiProviderProps {
   url: string
   token: string
-  children?: ReactNode
+  children: ReactNode
 }
 
 export const ApiProvider: React.FC<ApiProviderProps> = ({

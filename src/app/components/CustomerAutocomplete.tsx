@@ -42,6 +42,7 @@ const CustomerAutocomplete = ({ value, onChange }: Props) => {
   return (
     <AsyncPaginate
       placeholder="Search a customer"
+      isClearable
       getOptionLabel={getCustomerLabel}
       additional={defaultAdditional}
       value={value}

@@ -38,6 +38,7 @@ const ProductAutocomplete = ({ value, onChange }: Props) => {
   return (
     <AsyncPaginate
       placeholder="Search a product"
+      isClearable
       additional={defaultAdditional}
       value={value}
       onChange={onChange}
