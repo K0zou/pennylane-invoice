@@ -4,6 +4,7 @@ import { Customer, Product, Invoice } from 'types'
 import { useParams, useNavigate } from 'react-router-dom';
 import ProductAutocomplete from '../ProductAutocomplete'
 import CustomerAutocomplete from '../CustomerAutocomplete'
+import InvoiceTotals from '../InvoiceTotals'
 
 
 type InvoiceWithCustomer = Invoice & { customer?: Customer };
@@ -203,6 +204,8 @@ export default function EditInvoice() {
               required
               />
 
+
+
               <button
               type="button"
               onClick={() => removeInvoiceLine(index)}
@@ -222,7 +225,8 @@ export default function EditInvoice() {
         + Add Line
         </button>
 
-
+        <InvoiceTotals lines={invoiceLines} />
+        
         <button type="submit" className="btn btn-success w-100">
             Submit Invoice
         </button>

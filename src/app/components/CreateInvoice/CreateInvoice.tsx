@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import { useApi } from 'api'
 import { Customer, Product } from 'types'
 import { useNavigate } from 'react-router-dom';
 import { Client } from 'api/gen/client'
 import ProductAutocomplete from '../ProductAutocomplete'
 import CustomerAutocomplete from '../CustomerAutocomplete'
+import InvoiceTotals from '../InvoiceTotals'
 
 
 type Props = {
@@ -27,6 +28,30 @@ export default function CreateInvoice({ client }: Props) {
       vat_rate: '20',
     },
   ]);
+
+  const totals = useMemo(() => {
+    return invoiceLines.reduce(
+      (totals, line) => {
+        if (line._destroy || !line.price || !line.vat_rate) return totals;
+  
+        const price = parseFloat(line.price);
+        const vatRate = parseFloat(line.vat_rate);
+        const quantity = parseFloat(line.quantity.toString() || '1');
+  
+        const lineSubtotal = price * quantity;
+        const lineTax = lineSubtotal * (vatRate / 100);
+  
+        return {
+          subtotal: totals.subtotal + lineSubtotal,
+          tax: totals.tax + lineTax,
+          total: totals.total + lineSubtotal + lineTax,
+        };
+      },
+      { subtotal: 0, tax: 0, total: 0 }
+    );
+  }, [invoiceLines]);
+  
+  
   
 
   const handleLineChange = (index: number, e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -140,7 +165,6 @@ export default function CreateInvoice({ client }: Props) {
             className="w-full border rounded p-2 mb-2"
             required
             />
-
             <button
             type="button"
             onClick={() => removeInvoiceLine(index)}
@@ -159,7 +183,7 @@ export default function CreateInvoice({ client }: Props) {
         + Add Line
         </button>
 
-
+        <InvoiceTotals lines={invoiceLines} />
         <button type="submit" className="btn btn-success w-100">
             Submit Invoice
         </button>

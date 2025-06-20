@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router'
 
 import { useApi } from 'api'
 import { Invoice } from 'types'
+import InvoiceTotals from '../InvoiceTotals'
 
 const InvoiceShow = () => {
   const { id } = useParams<{ id: string }>()
@@ -135,6 +136,7 @@ const InvoiceShow = () => {
           ))}
         </tbody>
       </table>
+      <InvoiceTotals lines={invoice.invoice_lines} />
       {!invoice.finalized && (
         <div className="mb-3">
         <button
