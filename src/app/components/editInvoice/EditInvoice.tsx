@@ -92,7 +92,7 @@ export default function EditInvoice() {
   const addInvoiceLine = () => {
     setInvoiceLines([
       ...invoiceLines,
-      { product_id: '', quantity: 1, label: '', price: '', vat_rate: '20' },
+      { product: null, quantity: 1, label: '', price: '', vat_rate: '20' },
     ]);
   };
   
@@ -226,7 +226,7 @@ export default function EditInvoice() {
         </button>
 
         <InvoiceTotals lines={invoiceLines} />
-        
+
         <button type="submit" className="btn btn-success w-100">
             Submit Invoice
         </button>

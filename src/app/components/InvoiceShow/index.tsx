@@ -48,7 +48,7 @@ const InvoiceShow = () => {
         {
           invoice: {
             id: invoice.id,
-            customer_id: invoice.customer_id,
+            customer_id: invoice.customer_id ?? undefined,
             finalized: true,
             paid: invoice.paid,
             date: invoice.date,
@@ -166,14 +166,11 @@ const InvoiceShow = () => {
         </div>
       )}
 
-      
-      <button
-      onClick={handleDelete}
-      disabled={invoice.finalized}
-      className={`btn btn-danger ${invoice.finalized ? 'opacity-50 cursor-not-allowed' : ''}`}
-    >
+    <button onClick={() => handleDelete(invoice.id)}
+    className={`btn btn-danger ${invoice.finalized ? 'opacity-50 cursor-not-allowed' : ''}`}>
       Delete Invoice
-    </button>
+      </button>
+
 
     </div>
   )

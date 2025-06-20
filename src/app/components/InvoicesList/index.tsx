@@ -23,11 +23,12 @@ const InvoicesList = (): React.ReactElement => {
   }, [fetchInvoices])
 
   //filter the customer list
-  const customersWithInvoices = Array.from(
+  const customersWithInvoices: Customer[] = Array.from(
     new Map(
       invoicesList
-        .filter(inv => inv.customer)
-        .map(inv => [inv.customer!.id, inv.customer])
+        .map(inv => inv.customer)
+        .filter((cust): cust is Customer => Boolean(cust))
+        .map(cust => [cust.id, cust])
     ).values()
   );
   

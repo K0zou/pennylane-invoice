@@ -13,9 +13,18 @@ export default function CreateInvoice() {
   //const [customers, setCustomers] = useState<Customer[]>([])
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const navigate = useNavigate();
-  const [invoiceLines, setInvoiceLines] = useState([
+  type InvoiceLine = {
+    product: Product | null;
+    quantity: number;
+    label: string;
+    price: string;
+    vat_rate: string;
+    _destroy?: boolean;
+  };
+  
+  const [invoiceLines, setInvoiceLines] = useState<InvoiceLine[]>([
     {
-      product: null as Product | null,
+      product: null,
       quantity: 1,
       label: '',
       price: '',
@@ -58,7 +67,7 @@ export default function CreateInvoice() {
   const addInvoiceLine = () => {
     setInvoiceLines([
       ...invoiceLines,
-      { product_id: '', quantity: 1, label: '', price: '', vat_rate: '20' },
+      { product: null, quantity: 1, label: '', price: '', vat_rate: '20' },
     ]);
   };
   
