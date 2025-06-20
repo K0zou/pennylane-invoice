@@ -8,16 +8,8 @@ import CustomerAutocomplete from '../CustomerAutocomplete'
 import InvoiceTotals from '../InvoiceTotals'
 
 
-type Props = {
-  client?: Client;
-};
-
-
-export default function CreateInvoice({ client }: Props) {
-  const fallbackApi = useApi(); 
-  const effectiveApi = client ?? fallbackApi;
-
-
+export default function CreateInvoice() {
+  const api = useApi();
 
   //const [customers, setCustomers] = useState<Customer[]>([])
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
@@ -109,7 +101,7 @@ export default function CreateInvoice({ client }: Props) {
       
         try {
           console.log('📦 Payload:', payload)
-          const res = await effectiveApi.postInvoices(null, payload);
+          const res = await api.postInvoices(null, payload);
           alert(`Invoice #${res.data.id} created successfully!`);
           navigate('/');
         } catch (err) {
