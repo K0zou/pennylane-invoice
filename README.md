@@ -101,3 +101,8 @@ As much as possible, please avoid introducing new dependencies - if you find thi
 You'll find the `InvoicesList` component already started in the `components` folder.
 
 If you prefer to use JavaScript without typing, you can execute the command `yarn eject_ts`
+
+
+### Comments
+I added invoice total calculation (subtotal, VAT, and total). It helps users see the actual financial summary before submitting the invoice, which is essential in a real-world invoicing tool.
+
