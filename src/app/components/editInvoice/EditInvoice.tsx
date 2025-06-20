@@ -5,6 +5,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import ProductAutocomplete from '../ProductAutocomplete'
 import CustomerAutocomplete from '../CustomerAutocomplete'
 import InvoiceTotals from '../InvoiceTotals'
+import { Components } from 'api/gen/client';
 
 
 type InvoiceWithCustomer = Invoice & { customer?: Customer };
@@ -144,7 +145,10 @@ export default function EditInvoice() {
     };
   
     try {
-      await api.putInvoice({ id: invoice.id }, payload);
+      await api.putInvoice({ id: invoice.id }, {
+        invoice: payload.invoice as Components.Schemas.InvoiceUpdatePayload,
+      });
+
       alert(`Invoice #${invoice.id} updated successfully!`);
       navigate('/');
     } catch (err) {

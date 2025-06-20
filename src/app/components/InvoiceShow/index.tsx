@@ -77,6 +77,10 @@ const InvoiceShow = () => {
     if (!confirmDelete) return;
   
     try {
+      if (!invoice) {
+        console.error('No invoice loaded');
+        return;
+      }
       await api.deleteInvoice({ id: invoice.id });
   
       alert('Invoice deleted successfully!');

@@ -5,6 +5,8 @@ import { useNavigate } from 'react-router-dom';
 import ProductAutocomplete from '../ProductAutocomplete'
 import CustomerAutocomplete from '../CustomerAutocomplete'
 import InvoiceTotals from '../InvoiceTotals'
+import { Components } from 'api/gen/client';
+
 
 
 export default function CreateInvoice() {
@@ -108,8 +110,11 @@ export default function CreateInvoice() {
         };
       
         try {
-          console.log('📦 Payload:', payload)
-          const res = await api.postInvoices(null, payload);
+          console.log('Payload:', payload)
+          const res = await api.postInvoices(null, {
+            invoice: payload as Components.Schemas.InvoiceCreatePayload,
+          });
+          
           alert(`Invoice #${res.data.id} created successfully!`);
           navigate('/');
         } catch (err) {
