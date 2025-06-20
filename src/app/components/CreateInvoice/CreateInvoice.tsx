@@ -14,7 +14,10 @@ type Props = {
 
 
 export default function CreateInvoice({ client }: Props) {
-  const api = client || useApi(); 
+  const fallbackApi = useApi(); 
+  const effectiveApi = client ?? fallbackApi;
+
+
 
   //const [customers, setCustomers] = useState<Customer[]>([])
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
@@ -106,7 +109,7 @@ export default function CreateInvoice({ client }: Props) {
       
         try {
           console.log('📦 Payload:', payload)
-          const res = await api.postInvoices(null, payload);
+          const res = await effectiveApi.postInvoices(null, payload);
           alert(`Invoice #${res.data.id} created successfully!`);
           navigate('/');
         } catch (err) {

@@ -2,7 +2,6 @@ import React from 'react'
 import { createRoot } from 'react-dom/client';
 import App from './App'
 import { ApiProvider } from '../api'
-
 import 'bootstrap/dist/css/bootstrap.min.css'
 
 const domRoot = document.getElementById('root');
@@ -12,7 +11,7 @@ root.render(
   <React.StrictMode>
     <ApiProvider
       url="https://jean-test-api.herokuapp.com/"
-      token="b4497f36-ca1d-4503-900f-aefb210ca3ff" // set your api token here
+      token={process.env.REACT_APP_API_TOKEN || ''}
       >
       <App />
     </ApiProvider>
