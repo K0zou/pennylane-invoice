@@ -2,7 +2,6 @@ import { useState, useMemo } from 'react'
 import { useApi } from 'api'
 import { Customer, Product } from 'types'
 import { useNavigate } from 'react-router-dom';
-import { Client } from 'api/gen/client'
 import ProductAutocomplete from '../ProductAutocomplete'
 import CustomerAutocomplete from '../CustomerAutocomplete'
 import InvoiceTotals from '../InvoiceTotals'
