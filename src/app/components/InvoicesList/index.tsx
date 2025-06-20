@@ -22,6 +22,16 @@ const InvoicesList = (): React.ReactElement => {
     fetchInvoices()
   }, [fetchInvoices])
 
+  //filter the customer list
+  const customersWithInvoices = Array.from(
+    new Map(
+      invoicesList
+        .filter(inv => inv.customer)
+        .map(inv => [inv.customer!.id, inv.customer])
+    ).values()
+  );
+  
+
    // Filter invoices by selected customer or Product
   const filteredInvoices = selectedCustomer || selectedProduct
   ? invoicesList.filter(invoice => {
@@ -43,6 +53,7 @@ const InvoicesList = (): React.ReactElement => {
         <CustomerAutocomplete
           value={selectedCustomer}
           onChange={setSelectedCustomer}
+          options={customersWithInvoices}
         />
       </div>
       <div className="mb-4">
@@ -67,7 +78,16 @@ const InvoicesList = (): React.ReactElement => {
         </thead>
         <tbody>
           {filteredInvoices.map((invoice) => (
-            <tr key={invoice.id}>
+            <tr
+              key={invoice.id}
+              className={
+                invoice.paid
+                  ? 'table-success'
+                  : invoice.finalized
+                  ? 'table-info'
+                  : ''
+              }
+            >          
               <td>
                 <Link to={`/invoices/${invoice.id}`}>{invoice.id}</Link>
               </td>

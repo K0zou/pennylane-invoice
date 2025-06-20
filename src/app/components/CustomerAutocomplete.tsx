@@ -8,6 +8,7 @@ import { GroupBase } from 'react-select'
 interface Props {
   value: Customer | null
   onChange: (Customer: Customer | null) => void
+  options?: Customer[]
 }
 
 const defaultAdditional = { page: 1 }
@@ -16,7 +17,7 @@ const getCustomerLabel = (customer: Customer) => {
   return `${customer.first_name} ${customer.last_name}`
 }
 
-const CustomerAutocomplete = ({ value, onChange }: Props) => {
+const CustomerAutocomplete = ({ value, onChange, options }: Props) => {
   const api = useApi()
 
   const loadOptions: LoadOptions<Customer, GroupBase<Customer>, {page: number}> = useCallback(
@@ -39,6 +40,15 @@ const CustomerAutocomplete = ({ value, onChange }: Props) => {
     [api]
   )
 
+  const staticLoadOptions: LoadOptions<Customer, GroupBase<Customer>, { page: number }> = async () => {
+    return {
+      options: options ?? [],
+      hasMore: false,
+      additional: { page: 1 }
+    }
+  }
+  
+
   return (
     <AsyncPaginate
       placeholder="Search a customer"
@@ -47,7 +57,8 @@ const CustomerAutocomplete = ({ value, onChange }: Props) => {
       additional={defaultAdditional}
       value={value}
       onChange={onChange}
-      loadOptions={loadOptions}
+      loadOptions={options ? staticLoadOptions : loadOptions}
+      options={options}
     />
   )
 }

@@ -11,6 +11,8 @@ const ApiContext = createContext<ApiContextState>({
   client: undefined,
 })
 
+export { ApiContext }
+
 interface ApiProviderProps {
   url: string
   token: string

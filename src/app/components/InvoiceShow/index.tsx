@@ -16,16 +16,85 @@ const InvoiceShow = () => {
     })
   }, [api, id])
 
+  const handleMarkAsPaid = async () => {
+    if (!invoice) return;
+  
+    try {
+      await api.putInvoice(
+        { id: invoice.id },
+        {
+          invoice: {
+            id: invoice.id,
+            paid: true
+          }
+        }
+      );
+  
+      alert('Invoice marked as paid!');
+      window.location.reload();
+    } catch (err) {
+      console.error('Failed to mark as paid:', err);
+      alert('Failed to update invoice status.');
+    }
+  };  
+
+  const handleFinalize = async () => {
+    if (!invoice) return;
+  
+    try {
+      await api.putInvoice(
+        { id: invoice.id },
+        {
+          invoice: {
+            id: invoice.id,
+            customer_id: invoice.customer_id,
+            finalized: true,
+            paid: invoice.paid,
+            date: invoice.date,
+            deadline: invoice.deadline,
+            invoice_lines_attributes: invoice.invoice_lines.map((line) => ({
+              id: line.id,
+              product_id: line.product_id,
+              quantity: line.quantity,
+              _destroy: false,
+            })),
+          },
+        }
+      );
+  
+      alert('Invoice finalized!');
+      window.location.reload();
+    } catch (err) {
+      console.error(err);
+      alert('Failed to finalize invoice.');
+    }
+  };
+  
+
+  const handleDelete = async (invoiceId: number) => {
+    const confirmDelete = window.confirm('Are you sure you want to delete this invoice?');
+    if (!confirmDelete) return;
+  
+    try {
+      await api.deleteInvoice({ id: invoice.id });
+  
+      alert('Invoice deleted successfully!');
+      // reload the invoice list or navigate
+      window.location.href = '/'; // or use navigate('/')
+    } catch (error: any) {
+      if (error.response?.status === 422) {
+        alert('This invoice is finalized and cannot be deleted.');
+      } else {
+        console.error('Error deleting invoice:', error);
+        alert('An error occurred while deleting the invoice.');
+      }
+    }
+  };
+
   if (!invoice) return <div>Loading...</div>
 
   return (
     <div className="container mt-4">
-      <button
-        onClick={() => navigate('/')}
-        className="btn btn-primary mb-3"
-      >
-        ← Back to Invoice List
-      </button>
       <h2>Invoice #{invoice.id}</h2>
 
        <p>
@@ -37,7 +106,8 @@ const InvoiceShow = () => {
       </p>
       <p><strong>Date:</strong> {invoice.date}</p>
       <p><strong>Deadline:</strong> {invoice.deadline}</p>
-      <p><strong>Finalized:</strong> {invoice.finalized ? 'Yes' : 'No'}</p>
+      <p><strong>Finalized:</strong> {invoice.finalized ? 'Yes' : 'No'}
+      </p>
       <p><strong>Paid:</strong> {invoice.paid ? 'Yes' : 'No'}</p>
 
       <h4>Invoice Lines</h4>
@@ -65,6 +135,44 @@ const InvoiceShow = () => {
           ))}
         </tbody>
       </table>
+      {!invoice.finalized && (
+        <div className="mb-3">
+        <button
+          className="btn btn-primary me-2"
+          onClick={() => navigate(`/invoices/${invoice.id}/edit`)}
+        >
+          Edit Invoice
+        </button>
+        <button
+          className="btn btn-success"
+          onClick={handleFinalize}
+        >
+          Finalize Invoice
+        </button>
+      </div>
+        
+      )}
+
+      {invoice.finalized && !invoice.paid && (
+        <div className="mb-3">
+        <button
+          className="btn btn-warning mb-3 ms-2"
+          onClick={handleMarkAsPaid}
+        >
+          Mark as Paid
+        </button>
+        </div>
+      )}
+
+      
+      <button
+      onClick={handleDelete}
+      disabled={invoice.finalized}
+      className={`btn btn-danger ${invoice.finalized ? 'opacity-50 cursor-not-allowed' : ''}`}
+    >
+      Delete Invoice
+    </button>
+
     </div>
   )
 }
