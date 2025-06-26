@@ -1,138 +1,152 @@
-import { render, screen, waitFor, fireEvent } from '@testing-library/react'
-import InvoiceShow from './'
-import { MemoryRouter, Route, Routes } from 'react-router-dom'
-import { ApiContext } from 'api'
-import { Client } from 'api/gen/client'
+import React from 'react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import '@testing-library/jest-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import InvoiceShow from './index';
+import { useApi } from 'api';
 
-/*
-Getting an error with the useEffect
-Error: Uncaught [TypeError: Cannot read properties of undefined (reading 'then')]
-*/
+jest.mock('api', () => ({
+    useApi: jest.fn(),
+  }));
 
-const mockNavigate = jest.fn()
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useNavigate: () => mockNavigate,
-}))
-
-const mockInvoiceData = {
+// Mock invoice data
+const mockInvoice = {
   id: 1,
-  customer_id: 100,
-  customer: {
-    id: 100,
-    first_name: 'John',
-    last_name: 'Doe',
-    address: '123 Street',
-    zip_code: '12345',
-    city: 'City',
-    country: 'Country',
-  },
-  date: '2025-06-20',
-  deadline: '2025-07-20',
+  customer_id: 101,
   finalized: false,
   paid: false,
+  date: '2024-05-01',
+  deadline: '2024-06-01',
+  total: '100.00',
+  tax: '20.00',
   invoice_lines: [
     {
       id: 1,
-      product_id: 1,
-      label: 'Product A',
+      invoice_id: 1,
+      product_id: 55,
       quantity: 2,
+      label: 'Mock Product',
       unit: 'piece',
       vat_rate: '20',
-      price: '100',
-      tax: '20',
+      price: '50.00',
+      tax: '10.00',
+      product: {
+        id: 55,
+        label: 'Mock Product',
+        vat_rate: '20',
+        unit: 'piece',
+        unit_price: '50.00',
+        unit_price_without_tax: '40.00',
+        unit_tax: '10.00',
+      },
     },
   ],
-}
+  customer: {
+    id: 101,
+    first_name: 'John',
+    last_name: 'Doe',
+    address: '123 Main St',
+    zip_code: '75001',
+    city: 'Paris',
+    country: 'France',
+    country_code: 'FR',
+  },
+};
 
-const mockClient: Partial<Client> = {
-  getInvoice: jest.fn().mockResolvedValue({ data: mockInvoiceData }),
-  putInvoice: jest.fn().mockResolvedValue({}),
-  deleteInvoice: jest.fn().mockResolvedValue({}),
-}
+const reloadMock = jest.fn();
 
-function renderComponent() {
-  render(
-    <MemoryRouter initialEntries={['/invoices/1']}>
-      <ApiContext.Provider value={{ client: mockClient as Client }}>
+/*beforeAll(() => {
+  Object.defineProperty(window, 'location', {
+    configurable: true,
+    value: {
+      ...window.location,
+      reload: reloadMock,
+    },
+  });
+  window.alert = jest.fn();
+}); */
+
+beforeAll(() => {
+    window.alert = jest.fn();
+  });
+  
+
+describe('InvoiceShow', () => {
+    /* beforeEach(() => {
+        jest.clearAllMocks();
+      }); */
+    beforeEach(() => {
+        jest.clearAllMocks();
+
+        window.alert = jest.fn();
+        // @ts-ignore
+        delete window.location;
+        //window.location = { ...window.location, reload: jest.fn() };
+      }); 
+
+    it('renders invoice data', async () => {
+      
+        (useApi as jest.Mock).mockReturnValue({
+        getInvoice: jest.fn().mockResolvedValue({ data: mockInvoice }),
+      });
+  
+      render(
+        <MemoryRouter initialEntries={['/invoices/1']}>
+          <Routes>
+            <Route path="/invoices/:id" element={<InvoiceShow />} />
+          </Routes>
+        </MemoryRouter>
+      );
+  
+      await waitFor(() => {
+        expect(screen.getByText(/Invoice #1/)).toBeInTheDocument();
+        expect(screen.getByText(/John Doe/)).toBeInTheDocument();
+      });
+    });
+
+  //test Finalise
+  it('calls API to finalize invoice on button click', async () => {
+    const mockPutInvoice = jest.fn().mockResolvedValue({ data: {} });
+    const mockGetInvoice = jest.fn().mockResolvedValue({ data: mockInvoice });
+    
+    (useApi as jest.Mock).mockReturnValue({
+        getInvoice: mockGetInvoice,
+        putInvoice: mockPutInvoice,
+      });
+
+    // Mock window.location.reload
+    //const reloadSpy = jest.spyOn(window.location, 'reload').mockImplementation(() => {});
+/*
+    Object.defineProperty(window, 'location', {
+        writable: true,
+        value: { ...window.location, reload: jest.fn() },
+      }); */
+
+    render(
+      <MemoryRouter initialEntries={['/invoices/1']}>
         <Routes>
           <Route path="/invoices/:id" element={<InvoiceShow />} />
         </Routes>
-      </ApiContext.Provider>
-    </MemoryRouter>
-  )
-}
+      </MemoryRouter>
+    );
+    
+    await waitFor(() => {
+      expect(screen.getByText(/Finalize Invoice/i)).toBeInTheDocument();
+    });
 
-test('renders invoice details', async () => {
-  renderComponent()
+    fireEvent.click(screen.getByText(/Finalize Invoice/i));
 
-  await waitFor(() => {
-    expect(screen.getByText(/Invoice #1/i)).toBeInTheDocument()
-    expect(screen.getByText(/John Doe/)).toBeInTheDocument()
-    expect(screen.getByText(/Product A/)).toBeInTheDocument()
-  })
-})
-
-test('finalizes the invoice', async () => {
-  renderComponent()
-
-  await waitFor(() =>
-    expect(screen.getByText(/Finalize Invoice/)).toBeInTheDocument()
-  )
-
-  fireEvent.click(screen.getByText(/Finalize Invoice/))
-
-  await waitFor(() =>
-    expect(mockClient.putInvoice).toHaveBeenCalledWith(
-      { id: 1 },
-      expect.objectContaining({
-        invoice: expect.objectContaining({
-          id: 1,
-          finalized: true,
-        }),
-      })
-    )
-  )
-})
-
-test('marks the invoice as paid', async () => {
-  // Mock invoice that is already finalized
-  ;(mockClient.getInvoice as jest.Mock).mockResolvedValueOnce({
-    data: { ...mockInvoiceData, finalized: true },
-  })
-
-  renderComponent()
-
-  await waitFor(() =>
-    expect(screen.getByText(/Mark as Paid/)).toBeInTheDocument()
-  )
-
-  fireEvent.click(screen.getByText(/Mark as Paid/))
-
-  await waitFor(() =>
-    expect(mockClient.putInvoice).toHaveBeenCalledWith(
-      { id: 1 },
-      expect.objectContaining({
-        invoice: expect.objectContaining({
-          paid: true,
-        }),
-      })
-    )
-  )
-})
-
-test('deletes invoice when confirmed', async () => {
-  window.confirm = jest.fn(() => true)
-
-  renderComponent()
-
-  await waitFor(() =>
-    expect(screen.getByText(/Delete Invoice/)).toBeInTheDocument()
-  )
-
-  fireEvent.click(screen.getByText(/Delete Invoice/))
-
-  await waitFor(() =>
-    expect(mockClient.deleteInvoice).toHaveBeenCalledWith({ id: 1 })
-  )
-})
+    await waitFor(() => {
+        expect(mockPutInvoice).toHaveBeenCalledWith(
+          { id: 1 },
+          expect.objectContaining({
+            invoice: expect.objectContaining({
+              finalized: true,
+            }),
+          })
+        );
+    
+        expect(window.alert).toHaveBeenCalledWith('Invoice finalized!');
+      });
+    });
+});

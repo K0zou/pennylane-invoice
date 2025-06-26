@@ -12,10 +12,18 @@ const InvoiceShow = () => {
   const [invoice, setInvoice] = useState<Invoice>()
 
   useEffect(() => {
-    api.getInvoice(id).then(({ data }) => {
-      setInvoice(data)
-    })
-  }, [api, id])
+    const fetchInvoice = async () => {
+      if (!id) return;
+      try {
+        const { data } = await api.getInvoice({ id: Number(id) });
+        setInvoice(data);
+      } catch (err) {
+        console.error('Failed to fetch invoice', err);
+      }
+    };
+  
+    fetchInvoice();
+  }, [api, id]);
 
   const handleMarkAsPaid = async () => {
     if (!invoice) return;

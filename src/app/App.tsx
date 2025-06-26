@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
 
-import InvoicesList from './components/InvoicesList'
+import InvoicesIndex from './components/InvoicesList'
 import InvoiceShow from './components/InvoiceShow'
 import CreateInvoice from './components/CreateInvoice/CreateInvoice'
 import EditInvoice from './components/editInvoice/EditInvoice'
@@ -19,7 +19,7 @@ function App() {
         </div>
 
         <Routes>
-          <Route path="/" element={<InvoicesList />} />
+          <Route path="/" element={<InvoicesIndex />} />
           <Route path="/invoices/:id" element={<InvoiceShow />} />
           <Route path="/create" element={<CreateInvoice />} />
           <Route path="/invoices/:id/edit" element={<EditInvoice />} />
